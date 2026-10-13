@@ -38,3 +38,10 @@ App_Data/Logs/
 BaoCao-DuongHoangThai-2380602012_v2.docx
 BaoCao-DuongHoangThai-2380602012_v3.docx
 BaoCao-HovaTen-Masinhvien.docx
+
+# Root files kept locally (not pushed to GitHub)
+/*.docx
+/*.pdf
+/*.png
+/*.sql
+invalid_test.docx
