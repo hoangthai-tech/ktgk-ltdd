@@ -1,0 +1,169 @@
+@using KiemTraGiuaKy.Web.Startup
+@{
+    ViewBag.Title = "Tải lên Đề thi TOEIC (.docx)";
+    ViewBag.CurrentPageName = PageNames.ExamUpload;
+    var errors = ViewBag.Errors as List<string>;
+    var errorMessage = ViewBag.ErrorMessage as string;
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark"><i class="fas fa-file-upload mr-2 text-primary"></i>Tải lên & Kiểm tra Đề thi (.docx)</h1>
+            </div>
+            <div class="col-sm-6 text-right">
+                <a href="@Url.Action("Index", "Exam")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left mr-1"></i> Quay lại Danh sách
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show elevation-2" role="alert">
+                <h5><i class="icon fas fa-ban mr-2"></i> LỖI XÁC THỰC FILE ĐỀ THI! HỆ THỐNG ĐÃ HỦY BỎ IMPORT.</h5>
+                <p class="mb-2">@errorMessage</p>
+                @if (errors != null && errors.Any())
+                {
+                    <hr />
+                    <strong>Chi tiết các vi phạm quy tắc cấu trúc (@errors.Count lỗi):</strong>
+                    <ul class="mt-2 mb-0 pl-4" style="max-height: 250px; overflow-y: auto;">
+                        @foreach (var err in errors)
+                        {
+                            <li class="text-white"><code>@err</code></li>
+                        }
+                    </ul>
+                }
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+
+        <div class="row">
+            <!-- Cột bên trái: Form tải lên -->
+            <div class="col-lg-6 col-md-12">
+                <div class="card card-primary card-outline elevation-2">
+                    <div class="card-header">
+                        <h3 class="card-title font-weight-bold">
+                            <i class="fas fa-cloud-upload-alt mr-2 text-primary"></i> Chọn tệp tin Word để nạp vào CSDL
+                        </h3>
+                    </div>
+                    <form asp-action="Upload" asp-controller="Exam" method="post" enctype="multipart/form-data" id="uploadForm">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="docxFile" class="font-weight-bold">Chọn tệp Microsoft Word (.docx):</label>
+                                <div class="custom-file mb-3">
+                                    <input type="file" class="custom-file-input" id="docxFile" name="docxFile" accept=".docx" required />
+                                    <label class="custom-file-label" for="docxFile" id="fileLabel">Chọn file .docx...</label>
+                                </div>
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle mr-1 text-info"></i> Hệ thống tự động kiểm tra cú pháp thẻ chuẩn 100 câu hỏi (Part 5: 30 câu, Part 6: 16 câu, Part 7: 54 câu).
+                                </small>
+                            </div>
+
+                            <div class="callout callout-info bg-light">
+                                <h6 class="font-weight-bold text-primary"><i class="fas fa-shield-alt mr-1"></i> Cơ chế Bảo vệ & Xác thực nghiêm ngặt (Atomicity):</h6>
+                                <p class="small text-secondary mb-1">
+                                    - Toàn bộ quá trình lưu CSDL được thực hiện trong một Transaction nguyên tử.<br />
+                                    - Nếu phát hiện bất kỳ câu hỏi nào thiếu đáp án đúng, sai mã thẻ hoặc thiếu bài đọc, hệ thống sẽ <strong>hủy bỏ (Rollback) hoàn toàn</strong> và không ghi bất kỳ bản ghi rác nào vào Database.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="card-footer text-right bg-white">
+                            <button type="submit" class="btn btn-primary px-4 elevation-1" id="btnSubmit">
+                                <i class="fas fa-cogs mr-1"></i> Bóc tách & Nhập CSDL
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Cột bên phải: Bảng quy chuẩn thẻ định dạng -->
+            <div class="col-lg-6 col-md-12">
+                <div class="card card-info card-outline elevation-2">
+                    <div class="card-header">
+                        <h3 class="card-title font-weight-bold">
+                            <i class="fas fa-tags mr-2 text-info"></i> Quy chuẩn Định dạng Thẻ trong File Word
+                        </h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped mb-0">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th style="width: 140px;">Tên thẻ</th>
+                                        <th>Cú pháp mẫu</th>
+                                        <th>Mục đích sử dụng</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>[EXAM]</code></td>
+                                        <td><code>[EXAM] TOEIC Reading Test 02</code></td>
+                                        <td>Khai báo thông tin tên đề thi</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>[PART: N]</code></td>
+                                        <td><code>[PART: 5]</code>, <code>[PART: 6]</code>, <code>[PART: 7]</code></td>
+                                        <td>Phân chia 3 phần thi độc lập</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>[GROUP: X-Y]</code></td>
+                                        <td><code>[GROUP: 131-134]</code></td>
+                                        <td>Nhóm các câu hỏi dùng chung bài đọc</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>[PASSAGE]</code></td>
+                                        <td><code>[PASSAGE] ... [/PASSAGE]</code></td>
+                                        <td>Bao bọc nội dung đoạn văn bài đọc (Part 6 & 7)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>[QUESTION: N]</code></td>
+                                        <td><code>[QUESTION: 101] Nội dung câu...</code></td>
+                                        <td>Khai báo số thứ tự và nội dung câu hỏi</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>[A]..[D]</code></td>
+                                        <td><code>[A] text [B] text [C] text [D] text</code></td>
+                                        <td>4 phương án lựa chọn trả lời</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>[ANSWER: X]</code></td>
+                                        <td><code>[ANSWER: B]</code></td>
+                                        <td>Chỉ định đáp án chính xác (A, B, C, hoặc D)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-light">
+                        <small class="text-muted">
+                            <i class="fas fa-check text-success mr-1"></i> Tệp tin chuẩn đã tạo sẵn: <code>TOEIC_Reading_v02.docx</code> tại thư mục gốc của đồ án.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section scripts {
+    <script>
+        document.getElementById('docxFile').addEventListener('change', function (e) {
+            var fileName = e.target.files[0] ? e.target.files[0].name : "Chọn file .docx...";
+            document.getElementById('fileLabel').innerText = fileName;
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', function () {
+            var btn = document.getElementById('btnSubmit');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang phân tích cú pháp & lưu CSDL...';
+            btn.disabled = true;
+        });
+    </script>
+}

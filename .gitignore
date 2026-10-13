@@ -1,0 +1,40 @@
+# .NET / C#
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+.pub-cache/
+.pub/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS / Temporary files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+~$*
+*.tmp
+*.log
+Logs/
+App_Data/Logs/
+
+# Redundant drafts / backup zips
+*.zip
+BaoCao-DuongHoangThai-2380602012_v2.docx
+BaoCao-DuongHoangThai-2380602012_v3.docx
+BaoCao-HovaTen-Masinhvien.docx
